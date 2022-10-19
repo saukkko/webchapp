@@ -1,0 +1,30 @@
+{
+  "name": "webchapp",
+  "version": "0.1.0",
+  "description": "",
+  "main": "./build/index.js",
+  "scripts": {
+    "start": "node ./build/index.js",
+    "prestart": "npm run build",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/saukkko/webchapp.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/saukkko/webchapp/issues"
+  },
+  "homepage": "https://github.com/saukkko/webchapp#readme",
+  "devDependencies": {
+    "@types/node": "^18.11.2",
+    "@typescript-eslint/eslint-plugin": "^5.40.1",
+    "@typescript-eslint/parser": "^5.40.1",
+    "eslint": "^8.25.0",
+    "prettier": "^2.7.1",
+    "typescript": "^4.8.4"
+  }
+}
