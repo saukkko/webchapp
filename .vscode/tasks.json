@@ -1,0 +1,19 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build-server",
+      "command": "tsc",
+      "type": "shell",
+      "options": { "cwd": "${workspaceFolder}/server/" },
+      "args": ["-w"],
+      "problemMatcher": ["$tsc", "$tsc-watch"],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "silent",
+        "revealProblems": "onProblem"
+      },
+      "group": "build"
+    }
+  ]
+}
