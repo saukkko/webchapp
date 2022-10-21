@@ -1,27 +1,35 @@
-import type { RawData } from "ws";
+import type { RawData, WebSocket } from "ws";
 import { WSCloseEvent } from "./Enums.js";
+import { Temporal } from "@js-temporal/polyfill";
 
 const printLogLine = (msg: string, asError = false, ...extraData: string[]) => {
-  let logLine = `[${new Date().toISOString()}]`; // todo, replace with Temporal
-  logLine += ` - ${msg}`;
-  if (extraData) logLine += `: ${extraData.join(" ").trimEnd()}`;
+  let logLine = `[${new Date().toISOString()}] - `; // todo, replace with Temporal
+  extraData.length > 0
+    ? (logLine += `${msg}: ${extraData.join(" ").trimEnd()}`)
+    : (logLine += msg);
 
   asError ? console.error(logLine) : console.log(logLine);
 };
 
 export const handleWsMessage = (
+  ws: WebSocket,
   data: RawData,
   isBinary: boolean,
   binaryEncoding: BufferEncoding = "base64"
-) =>
-  isBinary
-    ? printLogLine(
-        "received binary data",
-        false,
-        data.toString(binaryEncoding),
-        `(${binaryEncoding.toString()})`
-      )
-    : printLogLine(data.toString());
+) => {
+  if (isBinary) {
+    printLogLine(
+      "received binary data",
+      false,
+      data.toString(binaryEncoding),
+      `(${binaryEncoding.toString()})`
+    );
+    ws.send(data.toString(binaryEncoding));
+  } else {
+    printLogLine(data.toString());
+    ws.send(data.toString());
+  }
+};
 
 export const handleWsClose = (code: number, reason: Buffer) => {
   const extraData = [
@@ -32,5 +40,10 @@ export const handleWsClose = (code: number, reason: Buffer) => {
   printLogLine("close event", false, ...extraData);
 };
 
-export const handleWsError = (err: Error) =>
-  printLogLine(err.message, true, ...Object.values(err));
+export const handleWsError = (err: Error) => {
+  printLogLine(
+    err.message,
+    true,
+    ...Object.entries(err).map((x) => `${x[0]}: ${x[1]}`)
+  );
+};
