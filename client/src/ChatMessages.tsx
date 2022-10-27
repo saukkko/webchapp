@@ -5,7 +5,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
   chatLog,
 }) => {
   return (
-    <ul style={{ display: "inline" }}>
+    <ul className="w-4/5 overflow-y-scroll h-full ">
       {chatLog.map((x, i) => (
         <ChatMessage key={i} msg={x} />
       ))}

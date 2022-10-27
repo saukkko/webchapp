@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
+import { ChatApp } from "./Chat";
+import { ChatInput } from "./ChatInput";
+import './index.css';
 
 // viedäänkö huone ja nick tieto esim. kekseissä?
 document.cookie = "room=testihuone";
@@ -7,20 +10,12 @@ document.cookie = "nick=testinick";
 const ws = new WebSocket("ws://localhost:8080/");
 
 function App() {
-  const [message, setMessage] = useState("");
-
-  const handleSend = (evt: React.MouseEvent<HTMLInputElement>) =>
-    ws.send(message);
-
-  const handleChange = (evt: React.ChangeEvent<HTMLInputElement>) =>
-    setMessage(evt.target.value);
-
-  return (
-    <div>
-      <input type="text" id="message" value={message} onChange={handleChange} />
-      <input type="button" id="send" value="send" onClick={handleSend} />
-    </div>
-  );
+	return (
+		<div id="chat" className="h-screen max-h-screen flex flex-col font-mono bg-gray-800 text-white">
+			<ChatApp ws={ws} />
+			<ChatInput ws={ws} />
+		</div>
+	);
 }
 
 export default App;
