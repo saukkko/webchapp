@@ -18,3 +18,4 @@ declare type ChatProps = {
 };
 
 export { ChatWindowProps, ChatUserListProps, ChatMessageListProps, ChatMessageProps, ChatProps };
+

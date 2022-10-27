@@ -1,7 +1,7 @@
+import React from "react;
 import { ChatApp } from "./Chat";
 import { ChatInput } from "./ChatInput";
 import './index.css';
-
 
 // viedäänkö huone ja nick tieto esim. kekseissä?
 document.cookie = "room=testihuone";
