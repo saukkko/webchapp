@@ -1,4 +1,4 @@
-import React from "react;
+import React from "react";
 import { ChatApp } from "./Chat";
 import { ChatInput } from "./ChatInput";
 import './index.css';
