@@ -14,12 +14,13 @@
       "outFiles": ["${workspaceFolder}/server/build/**/*.js"]
     },
     {
-      "command": "npm start client",
+      "command": "npm start",
       "name": "Run npm start (client)",
       "request": "launch",
       "type": "node-terminal",
       "sourceMaps": true,
-      "cwd": "${workspaceFolder}/client/"
+      "cwd": "${workspaceFolder}/client/",
+      "internalConsoleOptions": "openOnSessionStart"
     }
   ]
 }
