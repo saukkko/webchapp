@@ -1,23 +1,35 @@
-import React from "react";
+import React, { useState } from "react";
 import { ChatApp } from "./Chat";
 import { ChatInput } from "./ChatInput";
+import { Button } from "./Inputs";
 import "./index.css";
 
-// viedäänkö huone ja nick tieto esim. kekseissä?
-document.cookie = "room=testihuone";
-document.cookie = "nick=testinick";
-
-const ws = new WebSocket("ws://localhost:8080/");
+// const ws = new WebSocket("ws://localhost:8080/");
 
 function App() {
-  return (
+  const [isConnected, setIsConnected] = useState<boolean>(false);
+  const [webSocket, setWebSocket] = useState<WebSocket>();
+
+  const handleConnect = (evt: React.PointerEvent<HTMLButtonElement>) => {
+    setWebSocket(new WebSocket("ws://localhost:8080/"));
+    setIsConnected(true);
+  };
+
+  return isConnected && webSocket ? (
     <div
       id="chat"
       className="h-screen max-h-screen flex flex-col font-mono bg-gray-800 text-white"
     >
-      <ChatApp ws={ws} />
-      <ChatInput ws={ws} />
+      <ChatApp ws={webSocket} />
+      <ChatInput ws={webSocket} />
     </div>
+  ) : (
+    <Button
+      onClick={handleConnect}
+      className="text-lg font-semibold px-2 m-1 rounded-lg bg-indigo-500 hover:bg-indigo-500/80"
+    >
+      Connect
+    </Button>
   );
 }
 
