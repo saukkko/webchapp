@@ -3,8 +3,8 @@ import type { HTMLAttributes, LiHTMLAttributes } from "react";
 declare type ChatWindowProps = HTMLAttributes<HTMLDivElement>;
 
 declare type ChatUserListProps = HTMLAttributes<HTMLUListElement> & {
-	users: string[];
-  };
+  users: string[];
+};
 
 declare type ChatMessageListProps = HTMLAttributes<HTMLUListElement> & {
   chatLog: string[];
@@ -17,5 +17,10 @@ declare type ChatProps = {
   chatMessageListProps: ChatMessageListProps;
 };
 
-export { ChatWindowProps, ChatUserListProps, ChatMessageListProps, ChatMessageProps, ChatProps };
-
+export {
+  ChatWindowProps,
+  ChatUserListProps,
+  ChatMessageListProps,
+  ChatMessageProps,
+  ChatProps,
+};
