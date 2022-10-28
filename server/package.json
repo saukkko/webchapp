@@ -21,7 +21,6 @@
   },
   "homepage": "https://github.com/saukkko/webchapp#readme",
   "devDependencies": {
-    "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.14",
     "@types/helmet": "^4.0.0",
     "@types/node": "^18.11.2",
