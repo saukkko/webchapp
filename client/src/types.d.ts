@@ -1,4 +1,11 @@
-import type { HTMLAttributes, LiHTMLAttributes } from "react";
+import type {
+  ButtonHTMLAttributes,
+  HTMLAttributes,
+  InputHTMLAttributes,
+  LiHTMLAttributes,
+} from "react";
+
+declare type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement>;
 
 declare type ChatWindowProps = HTMLAttributes<HTMLDivElement>;
 
@@ -17,10 +24,16 @@ declare type ChatProps = {
   chatMessageListProps: ChatMessageListProps;
 };
 
+declare type InputProps = InputHTMLAttributes<HTMLInputElement> & {
+  label?: string;
+};
+
 export {
+  ButtonProps,
   ChatWindowProps,
   ChatUserListProps,
   ChatMessageListProps,
   ChatMessageProps,
   ChatProps,
+  InputProps,
 };
