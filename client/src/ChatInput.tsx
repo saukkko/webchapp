@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FaArrowRight } from "react-icons/fa";
+import { Button, TextInput } from "./Inputs";
 
 export const ChatInput = ({ ws }: { ws: WebSocket }) => {
   const [message, setMessage] = useState("");
@@ -18,16 +19,15 @@ export const ChatInput = ({ ws }: { ws: WebSocket }) => {
       onSubmit={handleSubmit}
       className="bg-slate-700 justify-self-end flex"
     >
-      <input
-        type="text"
+      <TextInput
         id="message"
         className="bg-slate-700 w-full"
         value={message}
         onChange={handleChange}
       />
-      <button type="submit" id="send" value="">
+      <Button className="" type="submit" id="send">
         <SendIcon />
-      </button>
+      </Button>
     </form>
   );
 };
