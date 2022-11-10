@@ -12,3 +12,4 @@ export const ChatUserList: React.FC<ChatUserListProps> = ({ users }) => {
 		</div>
 	);
 }
+
