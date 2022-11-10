@@ -17,23 +17,22 @@ declare type ChatMessageListProps = HTMLAttributes<HTMLUListElement> & {
   chatLog: string[];
 };
 declare type ChatMessageProps = LiHTMLAttributes<HTMLLIElement> & {
-  msg: string;
+  msg: { username: string; text: string };
 };
+declare type ChatMessageUserProps = LiHTMLAttributes<HTMLLIElement> & {
+  username: string;
+};
+
 declare type ChatProps = {
   chatWindowProps: ChatWindowProps;
   chatMessageListProps: ChatMessageListProps;
 };
 
-declare type InputProps = InputHTMLAttributes<HTMLInputElement> & {
-  label?: string;
-};
-
 export {
-  ButtonProps,
   ChatWindowProps,
   ChatUserListProps,
   ChatMessageListProps,
   ChatMessageProps,
+  ChatMessageUserProps,
   ChatProps,
-  InputProps,
 };
