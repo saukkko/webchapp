@@ -1,7 +1,8 @@
 {
   "name": "webchapp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "",
+  "main": "index.js",
   "scripts": {
     "install": "npm install --prefix client && npm install --prefix server",
     "postinstall": "npm run build",
