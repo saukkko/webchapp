@@ -1,32 +1,39 @@
 import React, { useLayoutEffect } from "react";
-import { ChatMessageListProps, ChatMessageProps, ChatMessageUserProps } from "./types";
+import type {
+  ChatMessageListProps,
+  ChatMessageProps,
+  ChatMessageUserProps,
+} from "./types";
 
-export const ChatMessageList: React.FC<ChatMessageListProps> = ({
-  chatLog,
-}) => {
-
+export const ChatMessageList: React.FC<ChatMessageListProps> = ({ chat }) => {
   useLayoutEffect(() => {
     const cl = document.getElementById("message-list");
     if (cl) cl.scrollBy(0, 24);
-  }, [chatLog]);
+  }, [chat.chatLog]);
 
   return (
-    <ul id="message-list"className="w-4/5 overflow-y-scroll scrollbar-thin">
-      {chatLog.map((x, i) => (
-        <ChatMessage key={i} msg={{username: "test", text: x}} />
+    // ei toimi chromium selaimilla tämä scrollbar, pitäiskö se tyylittää vaan ite?
+    <ul id="message-list" className="w-4/5 overflow-y-scroll scrollbar-thin">
+      {chat.chatLog.map((x, i) => (
+        <ChatMessage key={i} data={{ username: x.nick, text: x.msg }} />
       ))}
     </ul>
   );
 };
 
-const ChatMessage: React.FC<ChatMessageProps> = ({ msg, ...props }) => {
-  return <li {...props}><ChatUser username={msg.username}/>{msg.text}</li>;
+const ChatMessage: React.FC<ChatMessageProps> = ({ data, ...props }) => {
+  return (
+    <li {...props}>
+      <ChatUser username={data.username} />
+      {data.text}
+    </li>
+  );
 };
 
-const ChatUser: React.FC<ChatMessageUserProps> = ({username, ...props}) => {
+const ChatUser: React.FC<ChatMessageUserProps> = ({ username, ...props }) => {
   return (
-    <span className="text-orange-300">
+    <span className="text-orange-300" {...props}>
       &lt;{username}&gt;&nbsp;
     </span>
   );
-}
+};
