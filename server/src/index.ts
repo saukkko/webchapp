@@ -9,10 +9,12 @@ const PORT = isNaN(Number(process.env.PORT)) ? 8080 : Number(process.env.PORT);
 const app = express();
 app.use(helmet());
 
+/* 
 app.use("/", (req, res, next) => {
   res.setHeader("set-cookie", "testkey=testvalue");
   return next();
 });
+*/
 
 process.env.NODE_ENV === "production"
   ? app.use("/", express.static("../build"))
@@ -31,3 +33,8 @@ const wss = new WebSocketServer({
 
 wss.once("listening", () => console.log(`WebSocket server ready`));
 wss.on("connection", connectionListener);
+
+wss.on("headers", (headers, req) => console.log(headers, req));
+
+setInterval(() => console.log(wss.clients), 60 * 1000);
+export const clients = wss.clients;
