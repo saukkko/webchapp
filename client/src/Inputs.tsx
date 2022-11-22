@@ -2,17 +2,20 @@ import React from "react";
 import type { ButtonProps, InputProps } from "./types";
 
 const Input: React.FC<InputProps> = ({ label, ...props }) =>
-  label ? (
-    <>
-      <label htmlFor={props.id}>{label}</label>
+  label && props.id ? (
+    <div className="p-2">
+      <label className="mx-1 p-1" htmlFor={props.id}>
+        {label}
+      </label>
+      <br />
       <input {...props} />
-    </>
+    </div>
   ) : (
     <input {...props} />
   );
 
 export const TextInput: React.FC<InputProps> = ({ label, ...props }) => (
-  <Input {...props} type="text" />
+  <Input label={label} {...props} type="text" />
 );
 
 export const Button: React.FC<ButtonProps> = ({ children, ...props }) => {
