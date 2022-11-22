@@ -2,12 +2,14 @@ import { useState } from "react";
 import { FaArrowRight } from "react-icons/fa";
 import { Button, TextInput } from "./Inputs";
 
-export const ChatInput = ({ ws }: { ws: WebSocket }) => {
+export const ChatInput = ({ ws, nick }: { ws: WebSocket; nick: string }) => {
   const [message, setMessage] = useState("");
 
   const handleSubmit = (evt: React.FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
-    ws.send(message);
+    ws.send(
+      JSON.stringify({ type: "message", data: { nick: nick, msg: message } })
+    );
     setMessage("");
   };
 
