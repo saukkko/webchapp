@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaArrowRight } from "react-icons/fa";
+import { AiOutlineRight } from "react-icons/ai";
 
 export const ChatInput = ({ ws }: { ws: WebSocket }) => {
   const [message, setMessage] = useState("");
@@ -16,26 +16,20 @@ export const ChatInput = ({ ws }: { ws: WebSocket }) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-slate-700 justify-self-end flex"
+      className="bg-slate-700 flex"
     >
       <input
         type="text"
         id="message"
-        className="bg-slate-700 w-full"
+        className="bg-slate-700 w-full input-form"
         value={message}
         onChange={handleChange}
       />
       <button type="submit" id="send" value="">
-        <SendIcon />
+        <div className="flex items-center justify-center p-1">
+          <AiOutlineRight className="h-8 w-8" />
+        </div>
       </button>
     </form>
-  );
-};
-
-const SendIcon: React.FC = () => {
-  return (
-    <div className="flex items-center justify-center p-1">
-      <FaArrowRight className="h-8 w-8" />
-    </div>
   );
 };

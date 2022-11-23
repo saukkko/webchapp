@@ -11,7 +11,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
   }, [chatLog]);
 
   return (
-    <ul id="message-list"className="w-4/5 overflow-y-scroll scrollbar-thin">
+    <ul id="message-list" className="grow-[2] overflow-y-scroll">
       {chatLog.map((x, i) => (
         <ChatMessage key={i} msg={{username: "test", text: x}} />
       ))}
