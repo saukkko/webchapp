@@ -16,4 +16,10 @@ export enum WSCloseEvent {
   "Try Again Later" = 1013,
   "Bad Gateway" = 1014,
   "TLS handshake" = 1015,
+  "Invalid key" = 4000,
+  "Invalid payload" = 4001,
+  "JWT Error" = 4002,
+  "Token expired" = 4003,
+  "Token not yet valid" = 4004,
+  "Timed out" = 4005,
 }

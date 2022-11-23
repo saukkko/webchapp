@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { AiOutlineRight } from "react-icons/ai";
+import { Button, TextInput } from "./Inputs";
 
-export const ChatInput = ({ ws }: { ws: WebSocket }) => {
+export const ChatInput = ({ ws, nick }: { ws: WebSocket; nick: string }) => {
   const [message, setMessage] = useState("");
 
   const handleSubmit = (evt: React.FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
-    ws.send(message);
+    ws.send(
+      JSON.stringify({ type: "message", data: { nick: nick, msg: message } })
+    );
     setMessage("");
   };
 
@@ -18,8 +21,7 @@ export const ChatInput = ({ ws }: { ws: WebSocket }) => {
       onSubmit={handleSubmit}
       className="bg-slate-700 flex"
     >
-      <input
-        type="text"
+      <TextInput
         id="message"
         className="bg-slate-700 w-full input-form"
         value={message}
