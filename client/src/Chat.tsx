@@ -50,12 +50,21 @@ export const ChatApp = (props: ChatAppProps) => {
     const payload: WSMessageObject | WSHeartbeatObject = JSON.parse(
       evt.data.toString()
     );
-    if (payload.type === "message")
+    if (payload.type === "message") {
       setChat({
         ...chat,
         users: payload.users,
-        chatLog: [...chat.chatLog, payload.data],
+        chatLog: [
+          ...chat.chatLog,
+          {
+            // objekti pitää purkaa ja tallentaa jotenkin tälleen. ehkä.
+            nick: payload.data.nick,
+            msg: payload.data.msg,
+            timestamp: payload.timestamp,
+          }
+        ],
       });
+    }
 
     if (payload.type === "token" && payload.token)
       sessionStorage.setItem("token", payload.token);
@@ -85,9 +94,10 @@ export const ChatApp = (props: ChatAppProps) => {
   */
 
   ws.onclose = (evt: CloseEvent) => {
-    const err: WSMessageData = {
+    const err: WSMessageData & { timestamp: number } = {
       msg: `Connection closed with code: ${evt.code}, reason: ${evt.reason}`,
       nick: "server",
+      timestamp: 123, // tähän pitää kai asettaa joku kiintee arvo väliaikaisesti että typescript on tyytyväinen
     };
     setChat({
       ...chat,
