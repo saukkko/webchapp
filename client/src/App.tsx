@@ -115,6 +115,7 @@ function App() {
           onChange={handleChange}
           value={user.nick}
           size={50}
+          maxLength={50}
           required
         />
         <TextInput
@@ -127,6 +128,7 @@ function App() {
           onChange={handleChange}
           value={user.room}
           size={50}
+          maxLength={50}
         />
         <Button className="px-2 m-1 rounded-lg
         text-lg font-semibold

@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { AiOutlineRight } from "react-icons/ai";
 import { TextInput } from "./Inputs";
+import { InputUserProps } from "./types";
 
 export const ChatInput = ({ ws, nick }: { ws: WebSocket; nick: string }) => {
   const [message, setMessage] = useState("");
 
   const handleSubmit = (evt: React.FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
-    if(message.trim().length > 0){
+    if (message.trim().length > 0) {
       ws.send(
         JSON.stringify({ type: "message", data: { nick: nick, msg: message } })
       );
@@ -24,12 +25,15 @@ export const ChatInput = ({ ws, nick }: { ws: WebSocket; nick: string }) => {
       className="flex border-2 rounded-lg
       bg-secondary border-primary-highlight"
     >
+      <ChatUser nick={nick} />
       <TextInput
         id="message"
         className="w-full
         border-none rounded-md
+        md:placeholder-opacity-0
         focus:outline-none focus:ring-0
-        bg-primary-light focus:bg-primary-highlight"
+        bg-primary-light focus:bg-primary-highlight placeholder-primary-highlight"
+        placeholder={nick}
         value={message}
         onChange={handleChange}
       />
@@ -39,5 +43,16 @@ export const ChatInput = ({ ws, nick }: { ws: WebSocket; nick: string }) => {
         </div>
       </button>
     </form>
+  );
+};
+
+const ChatUser: React.FC<InputUserProps> = ({ nick, ...props }) => {
+  return (
+    <div className="items-center justify-center p-2 hidden md:block">
+      <div className="text-primary font-bold">
+        &lt;{nick}&gt;
+      </div>
+    </div>
+
   );
 };

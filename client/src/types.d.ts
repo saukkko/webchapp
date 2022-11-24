@@ -56,6 +56,10 @@ declare type InputProps = InputHTMLAttributes<HTMLInputElement> & {
   label?: string;
 };
 
+declare type InputUserProps = HTMLAttributes<HTMLDivElement> & {
+  nick: string;
+};
+
 declare type WSMessageObject = {
   type: WSMessageType;
   token?: string;
@@ -100,4 +104,5 @@ export type {
   WSHeartbeatObject,
   WSMessageData,
   InputProps,
+  InputUserProps,
 };
