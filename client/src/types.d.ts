@@ -21,10 +21,14 @@ declare type ChatMessageListProps = HTMLAttributes<HTMLUListElement> & {
   chat: ChatSettings;
 };
 declare type ChatMessageProps = LiHTMLAttributes<HTMLLIElement> & {
-  data: { username: string; text: string };
+  data: { username: string; text: string, timestamp: number };
 };
 declare type ChatMessageUserProps = LiHTMLAttributes<HTMLLIElement> & {
   username: string;
+};
+
+declare type ChatMessageTimeProps = LiHTMLAttributes<HTMLLIElement> & {
+  timestamp: number;
 };
 
 declare type ChatProps = {
@@ -38,11 +42,15 @@ declare type ChatAppProps = User & {
 };
 
 declare type ChatSettings = {
-  chatLog: WSMessageData[];
+  chatLog: ChatLog[]; // nimen saa muuttaa
   nick: string;
   room: string;
   users: ChatUsers[];
 };
+
+declare type ChatLog = WSMessageData & {
+  timestamp: number;
+}
 
 declare type InputProps = InputHTMLAttributes<HTMLInputElement> & {
   label?: string;
@@ -67,6 +75,7 @@ type WSData = WSMessageData;
 declare type WSMessageData = {
   nick: string;
   msg: string;
+  timestamp?: number;
 };
 
 declare type User = {
@@ -83,6 +92,7 @@ export type {
   ChatMessageListProps,
   ChatMessageProps,
   ChatMessageUserProps,
+  ChatMessageTimeProps,
   ChatProps,
   ChatAppProps,
   ChatSettings,
