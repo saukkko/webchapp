@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { compactVerify, createLocalJWKSet } from "jose";
 import { ChatApp } from "./Chat";
 import { ChatInput } from "./ChatInput";
 import { Button, TextInput } from "./Inputs";
-import type { User, WSHeartbeatObject } from "./types";
+import type { User } from "./types";
 import "./index.css";
 
 const token = sessionStorage.getItem("token");
@@ -82,34 +82,60 @@ function App() {
   return isConnected && webSocket ? (
     <div
       id="chat"
-      className="h-screen max-h-screen flex flex-col font-mono bg-gray-800 text-white"
+      className="h-screen
+      flex flex-col
+      font-mono
+      bg-primary text-white"
     >
       <ChatApp ws={webSocket} room={user.room} nick={user.nick} />
       <ChatInput ws={webSocket} nick={user.nick} />
     </div>
   ) : (
-    <form action="#" method="POST" onSubmit={handleConnect}>
-      <TextInput
-        label="Nickname"
-        id="nick"
-        placeholder="Enter nickname"
-        onChange={handleChange}
-        value={user.nick}
-        size={50}
-        required
-      />
-      <TextInput
-        label="Room"
-        id="room"
-        placeholder="Enter room name (This value is currently ignored)"
-        onChange={handleChange}
-        value={user.room}
-        size={50}
-      />
-      <Button className="text-lg font-semibold px-2 m-1 rounded-lg bg-indigo-500 hover:bg-indigo-500/80">
-        Connect
-      </Button>
-    </form>
+    <div id="join"
+      className=" h-screen
+      grid place-content-center
+      font-mono
+      bg-primary">
+      <h1 className="place-self-center p-4
+      text-4xl
+      text-white">
+        WebChApp</h1>
+      <form
+        className="flex flex-col
+        rounded-lg
+        bg-primary-light"
+        action="#" method="POST" onSubmit={handleConnect}>
+        <TextInput
+          label="Nickname"
+          id="nick"
+          className="w-full
+          rounded-md overflow-hidden
+          bg-primary-highlight text-white"
+          placeholder="Enter nickname"
+          onChange={handleChange}
+          value={user.nick}
+          size={50}
+          required
+        />
+        <TextInput
+          label="Room"
+          id="room"
+          className="w-full
+          rounded-md overflow-hidden
+          bg-primary-highlight text-white"
+          placeholder="Enter room name (This value is currently ignored)"
+          onChange={handleChange}
+          value={user.room}
+          size={50}
+        />
+        <Button className="px-2 m-1 rounded-lg
+        text-lg font-semibold
+        text-primary bg-secondary hover:bg-secondary-light">
+          Connect
+        </Button>
+      </form>
+    </div>
+
   );
 }
 
