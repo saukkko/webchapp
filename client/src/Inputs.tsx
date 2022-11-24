@@ -4,7 +4,7 @@ import type { ButtonProps, InputProps } from "./types";
 const Input: React.FC<InputProps> = ({ label, ...props }) =>
   label && props.id ? (
     <div className="p-2">
-      <label className="mx-1 p-1" htmlFor={props.id}>
+      <label className="mx-1 p-1 text-white" htmlFor={props.id}>
         {label}
       </label>
       <br />

@@ -12,8 +12,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({ chat }) => {
   }, [chat.chatLog]);
 
   return (
-    // ei toimi chromium selaimilla tämä scrollbar, pitäiskö se tyylittää vaan ite?
-    <ul id="message-list" className="w-4/5 overflow-y-scroll scrollbar-thin">
+    <ul id="message-list" className="grow-[2] overflow-y-scroll">
       {chat.chatLog.map((x, i) => (
         <ChatMessage key={i} data={{ username: x.nick, text: x.msg }} />
       ))}
@@ -32,7 +31,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ data, ...props }) => {
 
 const ChatUser: React.FC<ChatMessageUserProps> = ({ username, ...props }) => {
   return (
-    <span className="text-orange-300" {...props}>
+    <span className="text-secondary" {...props}>
       &lt;{username}&gt;&nbsp;
     </span>
   );

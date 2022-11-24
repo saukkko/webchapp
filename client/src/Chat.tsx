@@ -97,17 +97,7 @@ export const ChatApp = (props: ChatAppProps) => {
   };
   return (
     <Chat
-      chatWindowProps={{
-        // TODO: replace inline styles with style library
-        style: {
-          width: "800px",
-          height: "240px",
-          overflow: "scroll",
-          overflowX: "hidden",
-          fontFamily: "monospace",
-          border: "1px solid black",
-        },
-      }}
+      chatWindowProps={{}}
       chatMessageListProps={{ chat: chat }}
       chatUserListProps={{ users: chat.users }}
     />
@@ -124,7 +114,9 @@ const Chat: React.FC<ChatProps> = ({ ...props }) => (
 const ChatWindow: React.FC<ChatWindowProps> = ({ children, ...props }) => (
   <div
     id="chat-window"
-    className="w-full p-4 h-full overflow-y-hidden break-words grow flex"
+    className="w-full h-full
+    grow flex p-4
+    overflow-y-hidden break-words"
   >
     {children}
   </div>
