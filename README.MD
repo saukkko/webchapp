@@ -9,19 +9,18 @@ The app has
 - Node.js with express
 - SQLite
 - JWTs
-- something
+- Probably something else too
 
 ## Quick start
 
 0. Have `git` installed and access to `openssl` (or other software that can generate EC256 keys)
-1. Clone the repository and enter the dir
-2. Enter the directory
-3. Install app prerequisities
-4. Enter the server directory and generate the required `private.key`
-5. Build the server files and run `build/Secret.js`
-6. Copy the JSON-formatted key from the output and insert it to `client/src/App.tsx` in the very beginning, replacing the current value of `pubKey` variable.
-7. Observe `server/src/index.ts` and adjust the default port if needed. If you change the default value, remember to change it in `client/src/App.tsx` too!
-8. Go back to project root and run `npm start` to start both, server and client.
+1. Clone the repository and enter the directory
+2. Install app prerequisities
+3. Enter the server directory and generate the required `private.key`
+4. Build the server files and run `build/Secret.js`
+5. Copy the JSON-formatted key from the output and insert it to `client/src/App.tsx` in the very beginning, replacing the current value of `pubKey` variable.
+6. Observe `server/src/index.ts` and adjust the default port if needed. If you change the default value, remember to change it in `client/src/App.tsx` too!
+7. Go back to project root and run `npm start` to start both, server and client.
 
 ### Detailed instructions
 
@@ -67,7 +66,7 @@ const pubKey = {
 
 /* Change only if you decided to use other than default port in server/src/index.ts */
 const getWsUrlBase = () => {
-  // insert your express/websocket port here, default is environment variable NODE_PORT || 53000
+  // insert your express/websocket port here. Server uses environment variable NODE_PORT || 53000 by default.
   const WS_PORT = 53000;
   let urlbase = new URL(window.location.href);
   let wsurl = `ws://${urlbase.hostname}:${WS_PORT}`;
@@ -111,4 +110,4 @@ heroku container:release -a <your_heroku_app_name> web
 
 ## Disclaimer
 
-The app may have bugs and your connection and messages are most likely NOT transferred securely.
+The app may have bugs and your connection and chat messages are most likely NOT transferred securely. Don't use it if you don't understand the risks.
