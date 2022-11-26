@@ -11,6 +11,11 @@ The app has
 - JWTs
 - Probably something else too
 
+## Authors
+
+- [saukkko](https://github.com/saukko)
+- [Noutaja](https://github.com/Noutaja)
+
 ## Quick start
 
 0. Have `git` installed and access to `openssl` (or other software that can generate EC256 keys)
