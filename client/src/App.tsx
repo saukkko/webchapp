@@ -33,6 +33,18 @@ function App() {
     nick: "",
   });
 
+  const getWsUrlBase = () => {
+    const WS_PORT = 53000;
+    let urlbase = new URL(window.location.href);
+    let wsurl = `ws://${urlbase.hostname}:${WS_PORT}`;
+    if (process.env.NODE_ENV === "production")
+      urlbase.protocol === "https:"
+        ? (wsurl = `wss://${urlbase.hostname}`)
+        : (wsurl = `ws://${urlbase.hostname}`);
+
+    return new URL(wsurl);
+  };
+
   // useTokenConnect
   useEffect(() => {
     if (token) {
@@ -46,7 +58,10 @@ function App() {
         );
         setUser({ room: room, nick: nick });
       };
-      setWebSocket(new WebSocket(`ws://localhost:8080/?token=${token}`));
+
+      const url = getWsUrlBase();
+      url.searchParams.set("token", encodeURIComponent(token));
+      setWebSocket(new WebSocket(url));
       verify();
     }
   }, []);
@@ -61,9 +76,12 @@ function App() {
         encodeURIComponent(user.room),
         encodeURIComponent(user.nick),
       ];
-      setWebSocket(
-        new WebSocket(`ws://localhost:8080/?room=${room}&nick=${nick}`)
-      );
+
+      const url = getWsUrlBase();
+      url.searchParams.set("room", room);
+      url.searchParams.append("nick", nick);
+
+      setWebSocket(new WebSocket(url));
     }
   };
 
@@ -91,20 +109,28 @@ function App() {
       <ChatInput ws={webSocket} nick={user.nick} />
     </div>
   ) : (
-    <div id="join"
+    <div
+      id="join"
       className=" h-screen
       grid place-content-center
       font-mono
-      bg-primary">
-      <h1 className="place-self-center p-4
+      bg-primary"
+    >
+      <h1
+        className="place-self-center p-4
       text-4xl
-      text-white">
-        WebChApp</h1>
+      text-white"
+      >
+        WebChApp
+      </h1>
       <form
         className="flex flex-col
         rounded-lg
         bg-primary-light"
-        action="#" method="POST" onSubmit={handleConnect}>
+        action="#"
+        method="POST"
+        onSubmit={handleConnect}
+      >
         <TextInput
           label="Nickname"
           id="nick"
@@ -130,14 +156,15 @@ function App() {
           size={50}
           maxLength={50}
         />
-        <Button className="px-2 m-1 rounded-lg
+        <Button
+          className="px-2 m-1 rounded-lg
         text-lg font-semibold
-        text-primary bg-secondary hover:bg-secondary-light">
+        text-primary bg-secondary hover:bg-secondary-light"
+        >
           Connect
         </Button>
       </form>
     </div>
-
   );
 }
 
