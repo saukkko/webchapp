@@ -19,11 +19,11 @@ export const ChatApp = (props: ChatAppProps) => {
     room: room,
     users: [{ nick: nick }],
   });
-
   const timer = useRef<{ t1: NodeJS.Timer; t2: NodeJS.Timer }>({
     t1: setTimeout(() => null),
     t2: setTimeout(() => null),
   });
+  const { token } = props;
 
   // useHeartbeat
   useEffect(() => {
@@ -31,6 +31,7 @@ export const ChatApp = (props: ChatAppProps) => {
       setInterval(() => {
         const heartBeatObject: WSHeartbeatObject = {
           type: "heartbeat",
+          data: "",
         };
         ws.send(JSON.stringify(heartBeatObject));
         console.log("sent heartbeat");
@@ -61,14 +62,15 @@ export const ChatApp = (props: ChatAppProps) => {
             nick: payload.data.nick,
             msg: payload.data.msg,
             timestamp: payload.timestamp,
-          }
+          },
         ],
       });
     }
 
-    if (payload.type === "token" && payload.token)
+    if (payload.type === "token" && payload.token) {
       sessionStorage.setItem("token", payload.token);
-
+      token.current = payload.token;
+    }
     if (payload.type === "ack" && payload.users) {
       console.log("received ack");
       setChat({ ...chat, users: payload.users });

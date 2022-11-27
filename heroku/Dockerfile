@@ -25,8 +25,8 @@ RUN mkdir -pv /app/client
 RUN mkdir -pv /app/server
 
 COPY --from=build /app/server/build /app/server
-COPY --from=build server/package-lock.json /app
-COPY --from=build server/package.json /app
+COPY --from=build /app/server/package-lock.json /app
+COPY --from=build /app/server/package.json /app
 
 WORKDIR /app
 RUN npm ci

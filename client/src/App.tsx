@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { compactVerify, createLocalJWKSet } from "jose";
 import { ChatApp } from "./Chat";
 import { ChatInput } from "./ChatInput";
@@ -6,7 +6,6 @@ import { Button, TextInput } from "./Inputs";
 import type { User } from "./types";
 import "./index.css";
 
-const token = sessionStorage.getItem("token");
 const pubKey = {
   kty: "EC",
   x: "PogwjDupX-K3RGX6WrXCknA62nJK_ns7gDewuB_SBV4",
@@ -32,6 +31,10 @@ function App() {
     room: "",
     nick: "",
   });
+  const token = useRef<string>(sessionStorage.getItem("token"));
+  const [windowHeight, setWindowHeight] = useState<number>(
+    window.visualViewport?.height ?? 768
+  );
 
   const getWsUrlBase = () => {
     const WS_PORT = 53000;
@@ -45,24 +48,35 @@ function App() {
     return new URL(wsurl);
   };
 
+  useLayoutEffect(() => {
+    if (!window.visualViewport) return;
+    window.visualViewport.onresize = (evt: ResizeEvent) =>
+      evt.target instanceof VisualViewport
+        ? setWindowHeight(evt.target.height)
+        : setWindowHeight(768);
+  }, [windowHeight]);
+
   // useTokenConnect
   useEffect(() => {
-    if (token) {
-      const verify = async () => {
-        const result = await compactVerify(
-          token,
-          createLocalJWKSet({ keys: [pubKey] })
-        );
-        const { room, nick } = JSON.parse(
-          new TextDecoder().decode(result.payload)
-        );
-        setUser({ room: room, nick: nick });
-      };
+    if (token.current) {
+      compactVerify(token.current, createLocalJWKSet({ keys: [pubKey] }))
+        .catch((err) => {
+          sessionStorage.removeItem("token");
+          err instanceof Error
+            ? console.error(err.message)
+            : console.error(err);
+        })
+        .then((result) => {
+          if (!result || !token.current) return;
+          const { room, nick } = JSON.parse(
+            new TextDecoder().decode(result.payload)
+          );
+          setUser({ room: room, nick: nick });
 
-      const url = getWsUrlBase();
-      url.searchParams.set("token", encodeURIComponent(token));
-      setWebSocket(new WebSocket(url));
-      verify();
+          const url = getWsUrlBase();
+          url.searchParams.set("token", encodeURIComponent(token.current));
+          setWebSocket(new WebSocket(url));
+        });
     }
   }, []);
 
@@ -100,12 +114,13 @@ function App() {
   return isConnected && webSocket ? (
     <div
       id="chat"
-      className="h-screen
+      className="
       flex flex-col
       font-mono
       bg-primary text-white"
+      style={{ height: windowHeight }}
     >
-      <ChatApp ws={webSocket} room={user.room} nick={user.nick} />
+      <ChatApp ws={webSocket} room={user.room} nick={user.nick} token={token} />
       <ChatInput ws={webSocket} nick={user.nick} />
     </div>
   ) : (
@@ -166,6 +181,10 @@ function App() {
       </form>
     </div>
   );
+}
+
+interface ResizeEvent extends Event {
+  target: VisualViewport | EventTarget | null;
 }
 
 export default App;
