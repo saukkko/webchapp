@@ -21,7 +21,7 @@ declare type ChatMessageListProps = HTMLAttributes<HTMLUListElement> & {
   chat: ChatSettings;
 };
 declare type ChatMessageProps = LiHTMLAttributes<HTMLLIElement> & {
-  data: { username: string; text: string, timestamp: number };
+  data: { username: string; text: string; timestamp: number };
 };
 declare type ChatMessageUserProps = LiHTMLAttributes<HTMLLIElement> & {
   username: string;
@@ -39,6 +39,7 @@ declare type ChatProps = {
 
 declare type ChatAppProps = User & {
   ws: WebSocket;
+  token: React.MutableRefObject<string | null>;
 };
 
 declare type ChatSettings = {
@@ -50,7 +51,7 @@ declare type ChatSettings = {
 
 declare type ChatLog = WSMessageData & {
   timestamp: number;
-}
+};
 
 declare type InputProps = InputHTMLAttributes<HTMLInputElement> & {
   label?: string;
@@ -71,6 +72,7 @@ declare type WSMessageObject = {
 declare type WSHeartbeatObject = {
   type: "heartbeat" | "ack";
   users?: ChatUsers[];
+  data?: string;
 };
 
 type WSMessageType = "message" | "token" | "update";
