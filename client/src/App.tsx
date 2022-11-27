@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { compactVerify, createLocalJWKSet } from "jose";
 import { ChatApp } from "./Chat";
 import { ChatInput } from "./ChatInput";
@@ -20,7 +20,6 @@ enum WSReadyState {
   "CLOSED" = WebSocket.CLOSED,
   "CLOSING" = WebSocket.CLOSING,
 }
-const viewportMaxHeight = window.visualViewport?.height ?? 768;
 
 function App() {
   const [webSocket, setWebSocket] = useState<WebSocket>();
@@ -33,6 +32,9 @@ function App() {
     nick: "",
   });
   const token = useRef<string>(sessionStorage.getItem("token"));
+  const [windowHeight, setWindowHeight] = useState<number>(
+    window.visualViewport?.height ?? 768
+  );
 
   const getWsUrlBase = () => {
     const WS_PORT = 53000;
@@ -45,6 +47,14 @@ function App() {
 
     return new URL(wsurl);
   };
+
+  useLayoutEffect(() => {
+    if (!window.visualViewport) return;
+    window.visualViewport.onresize = (evt: ResizeEvent) =>
+      evt.target instanceof VisualViewport
+        ? setWindowHeight(evt.target.height)
+        : setWindowHeight(768);
+  }, [windowHeight]);
 
   // useTokenConnect
   useEffect(() => {
@@ -108,7 +118,7 @@ function App() {
       flex flex-col
       font-mono
       bg-primary text-white"
-      style={{ height: viewportMaxHeight }}
+      style={{ height: windowHeight }}
     >
       <ChatApp ws={webSocket} room={user.room} nick={user.nick} token={token} />
       <ChatInput ws={webSocket} nick={user.nick} />
@@ -171,6 +181,10 @@ function App() {
       </form>
     </div>
   );
+}
+
+interface ResizeEvent extends Event {
+  target: VisualViewport | EventTarget | null;
 }
 
 export default App;
