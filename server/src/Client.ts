@@ -25,10 +25,7 @@ export class Client {
   public get headers(): IncomingHttpHeaders {
     return this._headers;
   }
-  private readonly _id = randomUUID();
-  public get id() {
-    return this._id;
-  }
+  public uuid = randomUUID();
   public timeout = 10000;
   private readonly url: URL;
   private heartbeatTimer?: NodeJS.Timer;
@@ -37,7 +34,7 @@ export class Client {
   constructor(ws: WebSocket, req: IncomingMessage) {
     this._ws = ws;
     this._headers = req.headers;
-    this.url = new URL("ws://localhost:8080/" + req.url);
+    this.url = new URL(`ws://${req.headers.host}/${req.url}`);
     this.saveConnection();
   }
 
@@ -51,7 +48,7 @@ export class Client {
     this.heartbeatTimer = this.doTimeout(this.timeout);
   }
 
-  private terminate(code = WSCloseEvent["Abnormal Closure"]) {
+  public terminate(code = WSCloseEvent["Abnormal Closure"]) {
     this.deleteConnection();
     this.ws.close(code, WSCloseEvent[code]);
     this.ws.terminate();
@@ -86,7 +83,7 @@ export class Client {
           break;
 
         case "heartbeat":
-          this.send({ type: "ack" }, false);
+          this.send({ type: "ack" }, { broadcast: false });
           clearTimeout(this.heartbeatTimer);
           this.heartbeatTimer = this.doTimeout(this.timeout);
           break;
@@ -97,15 +94,51 @@ export class Client {
     });
   }
 
-  public send(data: MessageObject, echoToAll = true) {
+  public send(data: MessageObject, options = { broadcast: true }) {
     db.all('SELECT nick FROM "connections";', (err, rows) => {
       const users = rows as Record<string, string>[];
       data.users = users;
-      echoToAll
+      options.broadcast
         ? clients.forEach((ws) => {
             ws.send(JSON.stringify(data));
           })
         : this.ws.send(JSON.stringify(data));
+    });
+  }
+
+  private async verifyToken(
+    token: string,
+    now: Temporal.Instant
+  ): Promise<JWSPayload> {
+    return new Promise((resolve, reject: (reason: WSCloseEvent) => void) => {
+      compactVerify(token, secret).then((verifyResult: VerifyResult) => {
+        const { nbf, iat, exp } = verifyResult.protectedHeader;
+        if (!iat || !nbf || !exp) {
+          return reject(WSCloseEvent["Invalid header"]);
+        }
+        if (iat > now.epochSeconds) {
+          return reject(WSCloseEvent["Token issued in the future"]);
+        }
+        if (nbf >= now.epochSeconds) {
+          return reject(WSCloseEvent["Token not yet valid"]);
+        }
+        if (exp <= now.epochSeconds) {
+          return reject(WSCloseEvent["Token expired"]); // TODO: should issue new token instead dropping the connection
+        }
+        // parse the payload
+        const tokenPayload: JWSPayload = JSON.parse(
+          new TextDecoder().decode(verifyResult.payload).toString()
+        );
+
+        if (
+          !tokenPayload.nick ||
+          tokenPayload.nick.length < 0 ||
+          !isValidUUIDv4(tokenPayload.uuid)
+        ) {
+          return reject(WSCloseEvent["Invalid payload"]);
+        }
+        return resolve(tokenPayload);
+      });
     });
   }
 
@@ -114,99 +147,142 @@ export class Client {
 
     // parse room, nick, token and wskey from the connection
     const wsKey = this.headers["sec-websocket-key"];
-    const { room, nick, token } = Object.fromEntries(
+    let { room, nick, token } = Object.fromEntries(
       this.url.searchParams.entries()
     );
 
-    // build jws payload
-    const jwsPayload: JWSPayload = {
-      room: room,
-      nick: nick,
-      key: wsKey,
-      uuid: this.id,
-    };
+    // save the connection
 
-    // issue the token
-    const jws = await new CompactSign(
-      new TextEncoder().encode(JSON.stringify(jwsPayload))
-    )
-      .setProtectedHeader({
-        alg: "ES256",
-        nbf: now.epochSeconds - 300,
-        exp: now.epochSeconds + 3600,
-        iat: now.epochSeconds,
-      })
-      .sign(secret);
-
-    // send the token to the client
-    this.send(
-      {
-        type: "token",
-        token: jws,
-      },
-      false
-    );
-
-    // finally save the connection
     if (token) {
       // verify token headers
-      const verifyResult: VerifyResult = await compactVerify(token, secret);
-      const { nbf, iat, exp } = verifyResult.protectedHeader;
-      if (!iat || !nbf || !exp) return; // invalid header
-      if (iat > now.epochSeconds) return; // invalid iat: (in the future)
-      if (nbf >= now.epochSeconds) return; // token not yet valid
-      if (exp <= now.epochSeconds) return; // token seems to be valid but expired => issue new one
+      /*
+      compactVerify(token, secret)
+        .then((verifyResult: VerifyResult) => {
+          const { nbf, iat, exp } = verifyResult.protectedHeader;
+          if (!iat || !nbf || !exp)
+            return this.terminate(WSCloseEvent["Invalid header"]);
+          if (iat > now.epochSeconds)
+            return this.terminate(WSCloseEvent["Token issued in the future"]);
+          if (nbf >= now.epochSeconds)
+            return this.terminate(WSCloseEvent["Token not yet valid"]);
+          if (exp <= now.epochSeconds)
+            return this.terminate(WSCloseEvent["Token expired"]); // TODO: should issue new token instead dropping the connection
 
-      // parse the payload
-      const payload: JWSPayload = JSON.parse(
-        new TextDecoder().decode(verifyResult.payload).toString()
+          // parse the payload
+          const tokenPayload: JWSPayload = JSON.parse(
+            new TextDecoder().decode(verifyResult.payload).toString()
+          );
+
+          if (
+            !tokenPayload.nick ||
+            tokenPayload.nick.length < 0 ||
+            !isValidUUIDv4(tokenPayload.uuid)
+          )
+            return this.terminate(WSCloseEvent["Invalid payload"]);
+
+          // update the new token with values from old token
+          jwsPayload.nick = tokenPayload.nick;
+          jwsPayload.uuid = tokenPayload.uuid;
+          jwsPayload.room = tokenPayload.room;
+          */
+      const tokenPayload = await this.verifyToken(token, now).catch(
+        (code: WSCloseEvent) => {
+          this.terminate(code);
+          console.error(WSCloseEvent[code]);
+        }
       );
+      if (!tokenPayload) return;
+      room = tokenPayload.room;
+      nick = tokenPayload.nick;
 
-      if (
-        !payload.nick ||
-        payload.nick.length < 1 ||
-        !isValidUUIDv4(payload.uuid)
-      )
-        return this.terminate(WSCloseEvent["Invalid payload"]);
+      // update or insert the data
       db.serialize(() => {
         db.get(
-          'SELECT id FROM "connections" WHERE uuid = ?',
-          payload.uuid,
-          (err, row) =>
+          'SELECT * FROM "connections" WHERE uuid = ?',
+          tokenPayload.uuid,
+          (err, row) => {
+            if (err) {
+              console.error(err);
+              this.terminate(WSCloseEvent["Server error"]);
+            }
             row
               ? db.run(
-                  'UPDATE "connections" SET uuid=?, room=?, nick=?, key=?, timestamp=? WHERE uuid = ?',
+                  'UPDATE "connections" SET room=?, nick=?, key=?, timestamp=? WHERE uuid = ?',
                   [
-                    this.id,
-                    payload.room,
-                    payload.nick,
+                    tokenPayload.room,
+                    tokenPayload.nick,
                     wsKey,
                     now.epochSeconds,
-                    payload.uuid,
+                    tokenPayload.uuid,
                   ]
                 )
               : db.run(
                   'INSERT OR REPLACE INTO "connections" (uuid, room, nick, key, timestamp) VALUES (?,?,?,?,?)',
                   [
-                    payload.uuid,
-                    payload.room,
-                    payload.nick,
+                    tokenPayload.uuid,
+                    tokenPayload.room,
+                    tokenPayload.nick,
                     wsKey,
                     now.epochSeconds,
                   ]
-                )
+                );
+          }
         );
       });
-    } else {
+
+      this.uuid = tokenPayload.uuid;
+    }
+
+    // if the user doesn't supply token, then we just insert the new data
+    else {
       db.run(
         'INSERT INTO "connections" (uuid, room, nick, key, timestamp) VALUES (?,?,?,?,?)',
-        [this.id, room, nick, wsKey, now.epochSeconds]
+        [this.uuid, room, nick, wsKey, now.epochSeconds],
+        (err) => {
+          if (err) {
+            console.error(err);
+            this.terminate(WSCloseEvent["Server error"]);
+          }
+        }
       );
+    }
+
+    // issue the token and send it to client
+    try {
+      // build jws payload
+      const jwsPayload: JWSPayload = {
+        room: room,
+        nick: nick,
+        key: wsKey,
+        uuid: this.uuid,
+      };
+      token = await new CompactSign(
+        new TextEncoder().encode(JSON.stringify(jwsPayload))
+      )
+        .setProtectedHeader({
+          alg: "ES256",
+          nbf: now.epochSeconds - 300,
+          exp: now.epochSeconds + 3600,
+          iat: now.epochSeconds,
+        })
+        .sign(secret);
+
+      // send the token to the client
+      this.send(
+        {
+          type: "token",
+          token: token,
+        },
+        { broadcast: false }
+      );
+    } catch (err) {
+      console.error(err);
+      return this.terminate(WSCloseEvent["Server error"]);
     }
   }
 
   private deleteConnection() {
-    db.run('DELETE FROM "connections" WHERE uuid=?', this.id);
+    db.run('DELETE FROM "connections" WHERE uuid=?', this.uuid);
   }
 }
 
